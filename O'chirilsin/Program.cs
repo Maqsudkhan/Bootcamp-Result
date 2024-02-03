@@ -1,1 +1,1 @@
-﻿Console.WriteLine("salom");
+﻿//Console.WriteLine("salom");

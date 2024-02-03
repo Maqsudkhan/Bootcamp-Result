@@ -58,8 +58,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yanvar_26", "Yanvar_26\Yanv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastFootBot", "FastFootBot\FastFootBot.csproj", "{DF51A4E5-4645-4C42-9453-1022CC3DBE61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "O'chirilsin", "O'chirilsin\O'chirilsin.csproj", "{97EE5657-47EB-47A1-88A9-E2AE82CE668F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,10 +164,6 @@ Global
 		{DF51A4E5-4645-4C42-9453-1022CC3DBE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF51A4E5-4645-4C42-9453-1022CC3DBE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF51A4E5-4645-4C42-9453-1022CC3DBE61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97EE5657-47EB-47A1-88A9-E2AE82CE668F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97EE5657-47EB-47A1-88A9-E2AE82CE668F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97EE5657-47EB-47A1-88A9-E2AE82CE668F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97EE5657-47EB-47A1-88A9-E2AE82CE668F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

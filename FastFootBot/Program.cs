@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using FastFootBot;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -62,44 +59,16 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
     Message message = update.Message!;
     Console.WriteLine($"Received a '{message!.Text}' message in chat {message.Chat.Id}. UserName =>  {message.Chat.Username}");
 
-    if (CheckAdminId(message.Chat.Id))
+    if(message.Text == "/start" && CheckAdminId(update.Message.Chat.Id))
     {
-        var requestReplyKeyboard = new ReplyKeyboardMarkup(
-            new List<KeyboardButton[]>()
-            {
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("Category✅"),
-                    new KeyboardButton("Product✅"),
-                },
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("Pay taype✅"),
-                    new KeyboardButton("Order status✅")
-                },
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("Download list orders⏬"),
-                    new KeyboardButton("Download list customers⏬")
-                },
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("🔙"),
-                    new KeyboardButton("Admin append👨🏻‍💻")
-                }
-            })
-        {
-            ResizeKeyboard = true,
-        };
-
-        requestReplyKeyboard.ResizeKeyboard = true;
-        requestReplyKeyboard.OneTimeKeyboard = true;
-
         await botClient.SendTextMessageAsync(
              chatId: message.Chat.Id,
              text: "Buttonlardan birini bosing!",
-             replyMarkup: requestReplyKeyboard);
+             replyMarkup: ButtonController.AdminButton);
+    }
 
+    if (CheckAdminId(message.Chat.Id))
+    {
         if (message.Text == "Admin append👨🏻‍💻")
         {
             await botClient.SendTextMessageAsync(
@@ -112,9 +81,9 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
         }
 
 
-        if(isPushCategory == 1)
+        if (isPushCategory == 1)
         {
-            if(message.Text == "Create✔️")
+            if (message.Text == "Create✔️")
             {
                 isPushCRUD = 1;
                 return;
@@ -133,8 +102,18 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             {
                 isPushCRUD = 4;
             }
-            if(isPushCRUD == 1)
+            else if (message.Text == "🔙") 
             {
+                await botClient.SendTextMessageAsync(
+                     chatId: message.Chat.Id,
+                     text: "Buttonlardan birin bosing!",
+                     replyMarkup: ButtonController.AdminButton
+                 );
+            }
+            if (isPushCRUD == 1)
+            {
+                await IsDone("Category qo'shildi.\nBoshqa qo'shish uchun create'ni bosing.");
+                isPushCRUD = 0;
                 Category.Add(new Category()
                 {
                     Category_name = message.Text!
@@ -142,115 +121,70 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             }
             else if (isPushCRUD == 2)
             {
+                await IsDone("Category update qilindi.\nYana update qilish uchun update'ni bosing.");
+                isPushCRUD = 0;
                 string[] str = message.Text.Split(", ");
-                Category.Update(str[0], str[1]);
+                await Category.Update(botClient, update, cancellationToken, str[0], str[1]);
             }
             else if (isPushCRUD == 3)
             {
+                await IsDone("Category o'chirildi.\nYana o'chirish uchun delete'ni bosing.");
+                isPushCRUD = 0;
                 Category.Delete(message.Text);
             }
             else if (isPushCRUD == 4)
             {
-                await botClient.SendTextMessageAsync(chatId:message.Chat.Id,text:Category.ShowAll(),cancellationToken:cancellationToken);
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: Category.ShowAll(), cancellationToken: cancellationToken);
             }
+        }
+        else if (isPushCategory == 6) 
+        {
+            await GetPDF.Run(botClient, update, cancellationToken);
+            isPushCategory = 0;
         }
         if (message.Text == "Category✅")
         {
             isPushCategory = 1;
-            var requestReplyKeyboard1 = new ReplyKeyboardMarkup(
-                new List<KeyboardButton[]>()
-            {
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("Create✔️"),
-                    new KeyboardButton("Update🔄️"),
-                },
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("Delate❌"),
-                    new KeyboardButton("Show all✅")
-                },
-                new KeyboardButton[]
-                {
-                    new KeyboardButton("🔙")
-                }
-            })
-            {
-                ResizeKeyboard = true,
-            };
-
             await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
             text: "Buttonlardan birini bosing!",
-            replyMarkup: requestReplyKeyboard1);
+            replyMarkup: ButtonController.CRUD);
+            return;
+        }
+        else if (message.Text == "Download list customers⏬") 
+        {
+            isPushCategory = 6;
             return;
         }
 
-    }
+        async Task IsDone(string status) {
+            await botClient.SendTextMessageAsync
+            (
+                 chatId: message.Chat.Id,
+                 text: status,
+                 replyMarkup: ButtonController.CRUD
+            );
+        }
 
+    }
     else if (CheckUsersId(message.Chat.Id))
     {
-        ReplyKeyboardMarkup requestReplyKeyboard = new(
-        new[]
-        {
-                 new KeyboardButton("Ichimlar🍹☕🍻"),
-                 new KeyboardButton("Burgerlar🍔"),
-                 new KeyboardButton("Lavashlar🌯"),
-                 new KeyboardButton("Shaurmalar🌮"),
-                 new KeyboardButton("Xot-doglar🌭"),
-                 new KeyboardButton("Desertlar🍰"),
-
-        });
-
-
-
-        requestReplyKeyboard.ResizeKeyboard = true;
-        requestReplyKeyboard.OneTimeKeyboard = true;
         await botClient.SendTextMessageAsync(
-             chatId: message.Chat.Id,
-             text: "Buttonlardan birini bosing!",
-             replyMarkup: requestReplyKeyboard
-         );
-
-        /*        if (message.Text == "/Admin")
-                {
-                    await GetMe(message.Chat.Id, requestReplyKeyboard);
-                }
-                if (message.Text == "/Adminmas")
-                {
-                    await GetUsers(message.Chat.Id, requestReplyKeyboard);
-                }*/
+                 chatId: message.Chat.Id,
+                 text: "Buttonlardan birin bosing!",
+                 replyMarkup: ButtonController.UserCategory
+             );
     }
     else
     {
         if (message.Type == MessageType.Contact)
         {
             await AddUserToJsonFile(new Person() { id = message.Chat.Id, Name = message.Contact!.FirstName, Phone_Number = message.Contact.PhoneNumber });
-            ReplyKeyboardMarkup requestReplyKeyboard = new(
-        new[]
-        {
-            new KeyboardButton[]
-            {
-                 new KeyboardButton("Ichimlar🍹☕🍻"),
-                 new KeyboardButton("Burgerlar🍔"),
-                 new KeyboardButton("Lavashlar🌯"),
-            },
-
-            new KeyboardButton[]
-            {
-                 new KeyboardButton("Shaurmalar🌮"),
-                 new KeyboardButton("Xot-doglar🌭"),
-                 new KeyboardButton("Desertlar🍰"),
-            }
-
-        });
-            requestReplyKeyboard.ResizeKeyboard = true;
-            requestReplyKeyboard.OneTimeKeyboard = true;
-
             await botClient.SendTextMessageAsync(
                  chatId: message.Chat.Id,
-                 text: "Buttonlardan birini bosing!",
-                 replyMarkup: requestReplyKeyboard
+                 text: "Xush kelibsiz!",
+                 replyMarkup: ButtonController.UserCategory
              );
         }
         else
@@ -468,16 +402,24 @@ class Category
         return sb.ToString();
     }
 
-    public static void Update(string Category_name,string new_name)
+    public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, string Category_name,string new_name)
     {
         List<Category> list = DeserilizeSerelize<Category>.GetAll(path);
         int index = list.FindIndex(us => us.Category_name == Category_name);
-
+        Console.WriteLine(index);
         if (index != -1)
         {
             list[index].Category_name = new_name;
             DeserilizeSerelize<Category>.Save(list, path);
+        } else if (index == -1) 
+        {
+            await botClient.SendTextMessageAsync(
+                 chatId: update.Message.Chat.Id,
+                 text: "Siz mavjud bo'lmagan ma'lumot kiritdingiz!!!",
+                 replyMarkup: ButtonController.CRUD
+             );
         }
+        // Ma'lumotlarni to'g'ri kiriting!\nMisol: {eski ma'lumor}, {yangi ma'lumot}
     }
     public static void Delete(string Cat_nm)
     {
@@ -512,6 +454,8 @@ class DeserilizeSerelize<T>
         string json = JsonSerializer.Serialize(lst);
         System.IO.File.WriteAllText(path, json);
     }
+
+
 }
 
 

@@ -210,8 +210,71 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
                 isPushCRUD = 0;
                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: PayType.ShowAll(), cancellationToken: cancellationToken);
             }
-
         }
+
+        else if (isPushCategory == 2)
+        {
+            if (message.Text == "Create✔️")
+            {
+                isPushCRUD = 21;
+                return;
+            }
+            else if (message.Text == "Update🔄️")
+            {
+                isPushCRUD = 22;
+                return;
+            }
+            else if (message.Text == "Delate❌")
+            {
+                isPushCRUD = 23;
+                return;
+            }
+            else if (message.Text == "Show all✅")
+            {
+                isPushCRUD = 24;
+            }
+            else if (message.Text == "🔙")
+            {
+                await botClient.SendTextMessageAsync(
+                     chatId: message.Chat.Id,
+                     text: "Buttonlardan birin bosing!",
+                     replyMarkup: ButtonController.AdminButton
+                 );
+            }
+            if (isPushCRUD == 21)
+            {
+                await IsDone("Product qo'shildi.\nBoshqa qo'shish uchun Create✔️ ni bosing.");
+                isPushCRUD = 0;
+                Product.Add(new Product()
+                {
+                    Product_name = message.Text!
+                });
+            }
+            else if (isPushCRUD == 22)
+            {
+                await IsDone("Producty update qilindi.\nYana Update qilish uchun Update🔄️ ni bosing.");
+                isPushCRUD = 0;
+                string[] str = message.Text.Split(", ");
+                await Product.Update(botClient, update, cancellationToken, str[0], str[1]);
+            }
+            else if (isPushCRUD == 23)
+            {
+                await IsDone("Product o'chirildi.\nYana o'chirish uchun Delate❌ ni bosing.");
+                isPushCRUD = 0;
+                Product.Delete(message.Text);
+            }
+            else if (isPushCRUD == 24 && Product.ShowAll().Count() == 0)
+            {
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Product hech narsa yuq❗❗❗", cancellationToken: cancellationToken);
+            }
+            else if (isPushCRUD == 24)
+            {
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: Product.ShowAll(), cancellationToken: cancellationToken);
+            }
+        }
+
 
 
         if (message.Text == "Category✅")
@@ -234,12 +297,21 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             isPushCategory = 3;
             await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
-            text: "Buttonlardan birini bosing!",
+            text: "Buttonlardan birini bosing❗",
             replyMarkup: ButtonController.CRUD);
             return;
         }
 
-        
+        else if (message.Text == "Product✅")
+        {
+            isPushCategory = 2;
+            await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Buttonlardan birini bosing❗",
+            replyMarkup: ButtonController.CRUD);
+            return;
+        }
+
         async Task IsDone(string status)
         {
             await botClient.SendTextMessageAsync

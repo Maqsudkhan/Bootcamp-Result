@@ -22,7 +22,7 @@ namespace FastFootBot
             await botClient.SendDocumentAsync(
                 chatId: update.Message.Chat.Id,
                 document: InputFile.FromStream(stream: stream, fileName: $"datas.pdf"),
-                caption: "Foydanaluvchilar ma'lumotlari"
+                caption: "Customers informations❗"
                 );
             stream.Dispose();
 

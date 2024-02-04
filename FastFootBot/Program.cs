@@ -14,6 +14,7 @@ var path_users = "D:\\BFN\\.Net\\C#\\FastFootBot\\Users.json";
 var path_admins = "D:\\BFN\\.Net\\C#\\FastFootBot\\Admins.json";
 
 int isPushCategory = 0;
+int isPushPayType = 0;
 int isPushCRUD = 0;
 using CancellationTokenSource cts = new();
 
@@ -59,7 +60,7 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
     Message message = update.Message!;
     Console.WriteLine($"Received a '{message!.Text}' message in chat {message.Chat.Id}. UserName =>  {message.Chat.Username}");
 
-    if(message.Text == "/start" && CheckAdminId(update.Message.Chat.Id))
+    if (message.Text == "/start" && CheckAdminId(update.Message!.Chat.Id))
     {
         await botClient.SendTextMessageAsync(
              chatId: message.Chat.Id,
@@ -102,7 +103,7 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             {
                 isPushCRUD = 4;
             }
-            else if (message.Text == "🔙") 
+            else if (message.Text == "🔙")
             {
                 await botClient.SendTextMessageAsync(
                      chatId: message.Chat.Id,
@@ -112,7 +113,7 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             }
             if (isPushCRUD == 1)
             {
-                await IsDone("Category qo'shildi.\nBoshqa qo'shish uchun create'ni bosing.");
+                await IsDone("Category qo'shildi.\nBoshqa qo'shish uchun Create✔️ ni bosing.");
                 isPushCRUD = 0;
                 Category.Add(new Category()
                 {
@@ -121,16 +122,21 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             }
             else if (isPushCRUD == 2)
             {
-                await IsDone("Category update qilindi.\nYana update qilish uchun update'ni bosing.");
+                await IsDone("Category update qilindi.\nYana Update qilish uchun Update🔄️ ni bosing.");
                 isPushCRUD = 0;
                 string[] str = message.Text.Split(", ");
                 await Category.Update(botClient, update, cancellationToken, str[0], str[1]);
             }
             else if (isPushCRUD == 3)
             {
-                await IsDone("Category o'chirildi.\nYana o'chirish uchun delete'ni bosing.");
+                await IsDone("Category o'chirildi.\nYana o'chirish uchun Delate❌ ni bosing.");
                 isPushCRUD = 0;
                 Category.Delete(message.Text);
+            }
+            else if (isPushCRUD == 4 && Category.ShowAll().Count() == 0)
+            {
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Categoryda hech narsa yuq❗❗❗", cancellationToken: cancellationToken);
             }
             else if (isPushCRUD == 4)
             {
@@ -138,11 +144,76 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
                 await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: Category.ShowAll(), cancellationToken: cancellationToken);
             }
         }
-        else if (isPushCategory == 6) 
+        else if (isPushCategory == 6)
         {
-            await GetPDF.Run(botClient, update, cancellationToken);
             isPushCategory = 0;
+            await GetPDF.Run(botClient, update, cancellationToken);
         }
+        else if (isPushCategory == 3)
+        {
+            if (message.Text == "Create✔️")
+            {
+                isPushCRUD = 31;
+                return;
+            }
+            else if (message.Text == "Update🔄️")
+            {
+                isPushCRUD = 32;
+                return;
+            }
+            else if (message.Text == "Delate❌")
+            {
+                isPushCRUD = 33;
+                return;
+            }
+            else if (message.Text == "Show all✅")
+            {
+                isPushCRUD = 34;
+            }
+            else if (message.Text == "🔙")
+            {
+                await botClient.SendTextMessageAsync(
+                     chatId: message.Chat.Id,
+                     text: "Buttonlardan birin bosing!",
+                     replyMarkup: ButtonController.AdminButton
+                 );
+            }
+            if (isPushCRUD == 31)
+            {
+                await IsDone("Pay Type qo'shildi.\nBoshqa qo'shish uchun Create✔️ ni bosing.");
+                isPushCRUD = 0;
+                PayType.Add(new PayType()
+                {
+                    Paytype_name = message.Text!
+                });
+            }
+            else if (isPushCRUD == 32)
+            {
+                await IsDone("Pay Type update qilindi.\nYana Update qilish uchun Update🔄️ ni bosing.");
+                isPushCRUD = 0;
+                string[] str = message.Text.Split(", ");
+                await PayType.Update(botClient, update, cancellationToken, str[0], str[1]);
+            }
+            else if (isPushCRUD == 33)
+            {
+                await IsDone("Pay Type o'chirildi.\nYana o'chirish uchun Delate❌ ni bosing.");
+                isPushCRUD = 0;
+                PayType.Delete(message.Text);
+            }
+            else if (isPushCRUD == 34 && PayType.ShowAll().Count() == 0)
+            {
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: "Pay Type hech narsa yuq❗❗❗", cancellationToken: cancellationToken);
+            }
+            else if (isPushCRUD == 34)
+            {
+                isPushCRUD = 0;
+                await botClient.SendTextMessageAsync(chatId: message.Chat.Id, text: PayType.ShowAll(), cancellationToken: cancellationToken);
+            }
+
+        }
+
+
         if (message.Text == "Category✅")
         {
             isPushCategory = 1;
@@ -152,13 +223,25 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
             replyMarkup: ButtonController.CRUD);
             return;
         }
-        else if (message.Text == "Download list customers⏬") 
+        else if (message.Text == "Download PDF list customers⏬")
         {
             isPushCategory = 6;
             return;
         }
 
-        async Task IsDone(string status) {
+        else if (message.Text == "Pay type✅")
+        {
+            isPushCategory = 3;
+            await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Buttonlardan birini bosing!",
+            replyMarkup: ButtonController.CRUD);
+            return;
+        }
+
+        
+        async Task IsDone(string status)
+        {
             await botClient.SendTextMessageAsync
             (
                  chatId: message.Chat.Id,
@@ -166,6 +249,9 @@ async Task HandleMessageAsync(ITelegramBotClient botClient, Update update, Cance
                  replyMarkup: ButtonController.CRUD
             );
         }
+
+
+
 
     }
     else if (CheckUsersId(message.Chat.Id))
@@ -391,18 +477,18 @@ class Category
         DeserilizeSerelize<Category>.Save(list, path);
     }
 
-    public static  string ShowAll()
+    public static string ShowAll()
     {
         StringBuilder sb = new StringBuilder();
         List<Category> list = DeserilizeSerelize<Category>.GetAll(path);
         foreach (Category u in list)
         {
-            sb.Append($"Category name: {u.Category_name}\n");
+            sb.Append($"Category name → {u.Category_name}\n\n");
         }
-        return sb.ToString();
+        return sb.ToString().ToLower();
     }
 
-    public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, string Category_name,string new_name)
+    public static async Task Update(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken, string Category_name, string new_name)
     {
         List<Category> list = DeserilizeSerelize<Category>.GetAll(path);
         int index = list.FindIndex(us => us.Category_name == Category_name);
@@ -411,11 +497,12 @@ class Category
         {
             list[index].Category_name = new_name;
             DeserilizeSerelize<Category>.Save(list, path);
-        } else if (index == -1) 
+        }
+        else if (index == -1)
         {
             await botClient.SendTextMessageAsync(
                  chatId: update.Message.Chat.Id,
-                 text: "Siz mavjud bo'lmagan ma'lumot kiritdingiz!!!",
+                 text: "Siz mavjud bo'lmagan ma'lumot kiritdingiz❗❗❗",
                  replyMarkup: ButtonController.CRUD
              );
         }
@@ -424,7 +511,7 @@ class Category
     public static void Delete(string Cat_nm)
     {
         List<Category> list = DeserilizeSerelize<Category>.GetAll(path);
-        int index = list.FindIndex(us => us.Category_name == Cat_nm);
+        int index = list.FindIndex(us => us.Category_name == Cat_nm.ToLower() );
 
         if (index != -1)
         {

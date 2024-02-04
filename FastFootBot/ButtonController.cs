@@ -20,7 +20,7 @@ namespace FastFootBot
                 new KeyboardButton[]
                 {
                     new KeyboardButton("Download list orders⏬"),
-                    new KeyboardButton("Download list customers⏬")
+                    new KeyboardButton("Download PDF list customers⏬")
                 },
                 new KeyboardButton[]
                 {

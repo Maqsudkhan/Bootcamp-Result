@@ -1,17 +1,1 @@
-[
-  {
-    "id": 5317475249,
-    "Name": "Tohirjon",
-    "Phone_Number": "\u002B998916800819"
-  },
-  {
-    "id": 1044317358,
-    "Name": "To\u02BBrayev Maqsud",
-    "Phone_Number": "\u002B998908652003"
-  },
-  {
-    "id": 6630980498,
-    "Name": "\u0421\u0430\u0440\u0434\u043E\u0440",
-    "Phone_Number": "\u002B998904466033"
-  }
-]
+[{"id":5317475249,"Name":"Tohirjon","Phone_Number":"\u002B998916800819"},{"id":6630980498,"Name":"\u0421\u0430\u0440\u0434\u043E\u0440","Phone_Number":"\u002B998904466033"},{"id":1044317358,"Name":"To\u02BBrayev Maqsud","Phone_Number":"\u002B998908652003"}]
